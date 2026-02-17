@@ -35,7 +35,7 @@ export const WorkDetail: React.FC = () => {
             <ul className="list-disc list-outside ml-6 space-y-4 marker:text-zinc-400">
               <li>Sacrificed 5% peak throughput for verifiable safety bounds.</li>
               <li>Chose TypeScript/Rust hybrid over pure Python to enforce type safety at the API boundary.</li>
-              <li>Implemented "human-in-the-loop" escalation for uncertainty scores > 0.8.</li>
+              <li>Implemented "human-in-the-loop" escalation for uncertainty scores {'>'}  0.8.</li>
             </ul>
 
              <h3 className="text-zinc-900 dark:text-zinc-200 font-medium text-2xl mt-16 mb-6">Robustness Analysis</h3>

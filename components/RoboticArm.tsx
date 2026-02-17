@@ -18,8 +18,8 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
 
   // Physics state refs
   const state = useRef({
-    l1: 160,
-    l2: 140,
+    l1: 280,
+    l2: 260,
     theta1: Math.PI / 2,
     theta2: Math.PI - 0.5,
     targetTheta1: Math.PI / 2,

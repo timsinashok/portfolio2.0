@@ -18,19 +18,19 @@ export const Work: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="mb-24 grid grid-cols-1 md:grid-cols-12 gap-16"
+        className="mb-18 grid grid-cols-1 md:grid-cols-12 gap-12"
       >
         {/* Intro Paragraph */}
-        <div className="md:col-span-12 mb-8">
-           <h1 className="text-5xl md:text-7xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight">
+        <div className="md:col-span-12 mb-6">
+           <h1 className="text-4xl md:text-5xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight">
              I think robots will win the world in 2 years.
            </h1>
         </div>
 
         {/* Columns: Building / Interests */}
-        <div className="md:col-span-5 space-y-6">
+        <div className="md:col-span-5 space-y-4">
            <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest">Currently Building</h3>
-           <ul className="space-y-3 text-zinc-700 dark:text-zinc-300 font-light text-xl">
+           <ul className="space-y-2 text-zinc-700 dark:text-zinc-300 font-light text-base">
              <li className="flex items-center gap-4">
                 <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse"></span>
                 Teleoperation Latency Solver
@@ -40,9 +40,9 @@ export const Work: React.FC = () => {
            </ul>
         </div>
 
-        <div className="md:col-span-5 space-y-6">
+        <div className="md:col-span-5 space-y-4">
            <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest">Current Interests</h3>
-           <ul className="space-y-3 text-zinc-600 dark:text-zinc-400 font-light text-xl">
+           <ul className="space-y-2 text-zinc-600 dark:text-zinc-400 font-light text-base">
              <li>Sim2Real Transfer</li>
              <li>Neuromorphic Computing</li>
              <li>Industrial Automation</li>
@@ -50,14 +50,14 @@ export const Work: React.FC = () => {
         </div>
 
         {/* New Section: Current Involvement */}
-        <div className="md:col-span-12 mt-12 pt-12 border-t border-zinc-200 dark:border-zinc-800">
-           <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-6">Current Involvement</h3>
+        <div className="md:col-span-12 mt-9 pt-9 border-t border-zinc-200 dark:border-zinc-800">
+           <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-4">Current Involvement</h3>
            <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-10 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
-              <h4 className="text-2xl md:text-3xl text-zinc-900 dark:text-zinc-100 font-medium mb-4">
+              <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-4">
                  Principal Systems Engineer at <span className="text-zinc-500">Stealth Robotics Co.</span>
               </h4>
-              <p className="text-xl md:text-2xl text-zinc-600 dark:text-zinc-300 font-light max-w-4xl leading-relaxed">
+              <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-300 font-light max-w-4xl leading-relaxed">
                  Leading the autonomous navigation stack for warehouse logistics. Specifically focused on solving the 'frozen robot' problem in high-density human environments using predictive world models and lightweight edge inference.
               </p>
            </div>
@@ -71,7 +71,7 @@ export const Work: React.FC = () => {
          transition={{ delay: 0.2 }}
          className="mb-16 flex items-center gap-6"
       >
-        <h2 className="text-3xl md:text-4xl font-medium text-zinc-900 dark:text-zinc-100">Selected Projects</h2>
+        <h2 className="text-2xl md:text-3xl font-medium text-zinc-900 dark:text-zinc-100">Selected Projects</h2>
         <div className="h-px flex-grow bg-zinc-200 dark:bg-zinc-800 mt-2"></div>
       </motion.div>
 
@@ -116,15 +116,15 @@ const ProjectItem: React.FC<{ project: Project; isOpen: boolean; onClick: () => 
         {/* Content */}
         <div className="flex-1 w-full">
           <div className="flex justify-between items-baseline mb-4">
-             <h2 className="text-3xl md:text-4xl font-medium text-zinc-900 dark:text-zinc-100 tracking-tight group-hover:text-accent-600 dark:group-hover:text-accent-500 transition-colors">
+             <h2 className="text-2xl md:text-3xl font-medium text-zinc-900 dark:text-zinc-100 tracking-tight group-hover:text-accent-600 dark:group-hover:text-accent-500 transition-colors">
                {project.title}
              </h2>
-             <span className="text-accent-600 dark:text-accent-500 text-3xl transform transition-transform duration-300 font-light select-none">
+             <span className="text-accent-600 dark:text-accent-500 text-2xl transform transition-transform duration-300 font-light select-none">
                {isOpen ? '−' : '+'}
              </span>
           </div>
           
-          <p className="text-zinc-600 dark:text-zinc-400 text-xl font-light tracking-wide mb-6 max-w-3xl leading-relaxed">
+          <p className="text-zinc-600 dark:text-zinc-400 text-base font-light tracking-wide mb-6 max-w-3xl leading-relaxed">
             {project.description}
           </p>
 
@@ -159,7 +159,7 @@ const ProjectItem: React.FC<{ project: Project; isOpen: boolean; onClick: () => 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                       <ul className="space-y-4">
                         {project.longDescription.map((desc, i) => (
-                          <li key={i} className="text-lg text-zinc-700 dark:text-zinc-400 font-light pl-6 relative before:content-[''] before:absolute before:left-0 before:top-2.5 before:w-1.5 before:h-1.5 before:bg-accent-500/50 before:rounded-full leading-relaxed">
+                          <li key={i} className="text-base text-zinc-700 dark:text-zinc-400 font-light pl-6 relative before:content-[''] before:absolute before:left-0 before:top-2.5 before:w-1.5 before:h-1.5 before:bg-accent-500/50 before:rounded-full leading-relaxed">
                             {desc}
                           </li>
                         ))}
