@@ -24,10 +24,10 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
   const state = useRef({
     l1: 280,
     l2: 260,
-    theta1: Math.PI / 2,
-    theta2: Math.PI - 0.5,
+    theta1: Math.PI / 2,  // 90 degrees
+    theta2: Math.PI / 4,  // 45 degrees
     targetTheta1: Math.PI / 2,
-    targetTheta2: Math.PI - 0.5,
+    targetTheta2: Math.PI / 4,
   });
 
   // Ball physics state
@@ -36,7 +36,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
     y: 0,
     vx: 0,
     vy: 0,
-    radius: 15,
+    radius: 30,  // Doubled from 15
     startX: 0,
     startY: 0,
     prevEEx: 0,
@@ -69,12 +69,16 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
     if (!ctx) return;
+    
+    // Optimize canvas rendering for smoother animation
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
-    // Initialize ball position (right of center, near profile picture)
-    const startX = canvas.width / 2 + 200;
-    const startY = 250;
+    // Initialize ball position (right of profile picture, vertically centered)
+    const startX = canvas.width / 2 + 250;
+    const startY = Math.min(canvas.height / 2, canvas.height/2 - 0.15*canvas.height ); // Match profile vertical center
     ball.current.startX = startX;
     ball.current.startY = startY;
     ball.current.x = startX;
@@ -122,8 +126,8 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         // Reposition ball and goal on resize
-        const startX = canvas.width / 2 + 200;
-        const startY = 250;
+        const startX = canvas.width / 2 + 250;
+        const startY = Math.min(canvas.height / 2 - 50, 300);
         ball.current.startX = startX;
         ball.current.startY = startY;
         setBallStartPos({ x: startX, y: startY });
@@ -136,12 +140,12 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      const speed = 0.08; 
+      const speed = 0.12;  // Slightly faster for smoother response
       
       if (!isActive) {
-         const rest = solveIK(canvas.width / 2, canvas.height + 100);
-         state.current.targetTheta1 = rest.theta1;
-         state.current.targetTheta2 = rest.theta2;
+         // Keep arm visible at default position (90° and 45°)
+         state.current.targetTheta1 = Math.PI / 2;
+         state.current.targetTheta2 = Math.PI / 4;
       } else {
          const solution = solveIK(target.x, target.y);
          state.current.targetTheta1 = solution.theta1;
@@ -160,49 +164,55 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
 
       // Ball physics
       if (gameState === 'playing') {
-        const gravity = 0.4;
-        const damping = 0.98;
+        const gravity = 0.22;  // Adjusted for larger ball
+        const airResistance = 0.994;  // Smoother movement
+        const bounceRestitution = 0.72;  // Better bounce for larger ball
         
+        // Apply physics
         ball.current.vy += gravity;
-        ball.current.vx *= damping;
-        ball.current.vy *= 0.995;
+        ball.current.vx *= airResistance;
+        ball.current.vy *= airResistance;
         
         ball.current.x += ball.current.vx;
         ball.current.y += ball.current.vy;
 
-        // Collision with arm end effector
+        // Collision with arm end effector (adjusted for larger ball)
         const dist = Math.sqrt(
           (ball.current.x - eex) ** 2 + (ball.current.y - eey) ** 2
         );
         
-        if (dist < ball.current.radius + 8) {
+        if (dist < ball.current.radius + 10) {
+          // Calculate arm velocity
           const eeVx = eex - ball.current.prevEEx;
           const eeVy = eey - ball.current.prevEEy;
+          const eeSpeed = Math.sqrt(eeVx ** 2 + eeVy ** 2);
           
+          // Collision normal
           const angle = Math.atan2(ball.current.y - eey, ball.current.x - eex);
-          const force = Math.sqrt(eeVx ** 2 + eeVy ** 2) * 0.5;
           
-          ball.current.vx += Math.cos(angle) * force + eeVx * 0.8;
-          ball.current.vy += Math.sin(angle) * force + eeVy * 0.8;
+          // Velocity transfer for juggling
+          const transferFactor = 1.3;
+          ball.current.vx = Math.cos(angle) * eeSpeed * transferFactor + eeVx * 0.65;
+          ball.current.vy = Math.sin(angle) * eeSpeed * transferFactor + eeVy * 0.65;
           
-          // Push ball away from collision
-          const overlap = ball.current.radius + 8 - dist;
-          ball.current.x += Math.cos(angle) * overlap;
-          ball.current.y += Math.sin(angle) * overlap;
+          // Push ball away from collision smoothly
+          const overlap = ball.current.radius + 10 - dist;
+          ball.current.x += Math.cos(angle) * (overlap + 2);
+          ball.current.y += Math.sin(angle) * (overlap + 2);
         }
 
-        // Bounce off edges
+        // Bounce off edges with better energy preservation
         if (ball.current.x - ball.current.radius < 0) {
           ball.current.x = ball.current.radius;
-          ball.current.vx *= -0.7;
+          ball.current.vx *= -bounceRestitution;
         }
         if (ball.current.x + ball.current.radius > canvas.width) {
           ball.current.x = canvas.width - ball.current.radius;
-          ball.current.vx *= -0.7;
+          ball.current.vx *= -bounceRestitution;
         }
         if (ball.current.y - ball.current.radius < 0) {
           ball.current.y = ball.current.radius;
-          ball.current.vy *= -0.7;
+          ball.current.vy *= -bounceRestitution;
         }
 
         // Game over if ball touches bottom
@@ -232,19 +242,19 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
 
       // COLORS BASED ON THEME
       const theme = isDarkRef.current ? {
-        stroke: '#525252',
+        stroke: '#f59e0b',  // Orange in dark mode
         jointFill: '#18181b',
-        jointStroke: '#71717a',
+        jointStroke: '#f59e0b',  // Orange joints
         accent: '#f59e0b'
       } : {
-        stroke: '#a1a1aa',
+        stroke: '#d97706',  // Orange in light mode
         jointFill: '#f4f4f5',
-        jointStroke: '#52525b',
+        jointStroke: '#d97706',  // Orange joints
         accent: '#d97706'
       };
 
       ctx.strokeStyle = theme.stroke;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;  // Slightly thicker for visibility
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
@@ -270,7 +280,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
 
       // Arm Segment 2
       ctx.beginPath();
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       ctx.strokeStyle = theme.stroke;
       ctx.moveTo(j1x, j1y);
       ctx.lineTo(eex, eey);
@@ -304,7 +314,9 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
       ctx.textAlign = 'center';
       ctx.fillText(`GOALS: ${score}`, canvas.width / 2, 25);
 
-      // Draw ball
+      // Draw ball (with different opacity based on game state)
+      const ballOpacity = gameState === 'waiting' ? 1.0 : 0.7;
+      ctx.globalAlpha = ballOpacity;
       ctx.fillStyle = theme.accent;
       ctx.beginPath();
       ctx.arc(ball.current.x, ball.current.y, ball.current.radius, 0, Math.PI * 2);
@@ -314,6 +326,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
       ctx.strokeStyle = isDarkRef.current ? '#fbbf24' : '#b45309';
       ctx.lineWidth = 2;
       ctx.stroke();
+      ctx.globalAlpha = 1.0; // Reset alpha
 
       animationFrameId = requestAnimationFrame(render);
     };
@@ -328,21 +341,25 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
       <canvas 
         ref={canvasRef} 
         className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40 mix-blend-multiply dark:mix-blend-screen"
+        style={{ willChange: 'transform' }}
       />
       
       {/* Start button overlay on ball */}
       {gameState === 'waiting' && ballStartPos.x > 0 && (
         <button
           onClick={startGame}
-          className="absolute z-10 pointer-events-auto"
+          className="absolute z-10 pointer-events-auto group"
           style={{
             left: `${ballStartPos.x}px`,
             top: `${ballStartPos.y}px`,
             transform: 'translate(-50%, -50%)'
           }}
         >
-          <div className="bg-accent-600 hover:bg-accent-500 dark:bg-accent-500 dark:hover:bg-accent-400 text-white font-mono text-sm px-4 py-2 rounded-full shadow-lg transition-all duration-200 hover:scale-110 border-2 border-white dark:border-zinc-900">
-            START
+          <div className="relative">
+            {/* Ball circle */}
+            <div className="w-[60px] h-[60px] rounded-full bg-accent-600 dark:bg-accent-500 border-2 border-accent-700 dark:border-accent-600 shadow-lg transition-all duration-200 group-hover:scale-110 group-hover:shadow-xl flex items-center justify-center">
+              <span className="text-white font-mono text-xs font-bold tracking-tight">START</span>
+            </div>
           </div>
         </button>
       )}
