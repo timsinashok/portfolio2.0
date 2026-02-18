@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ArrowRight, Github, Linkedin, Twitter } from 'lucide-react';
-import { RoboticArm } from '../components/RoboticArm';
+import { RoboticArmInteractive } from '../components/RoboticArmInteractive';
 import { Point } from '../types';
 
 export const Home: React.FC = () => {
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [target, setTarget] = useState<Point>({ x: 0, y: 0 });
   const [score, setScore] = useState(0);
+  const [target, setTarget] = useState<Point>({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const pendingTargetRef = useRef<Point | null>(null);
@@ -134,7 +134,7 @@ export const Home: React.FC = () => {
       <div className="absolute top-28 right-6 md:right-12 z-30 text-xs font-mono text-zinc-500 dark:text-zinc-500 pointer-events-none">
         Goals: <span className="text-zinc-900 dark:text-zinc-100">{score.toString().padStart(2, '0')}</span>
       </div>
-      <RoboticArm
+      <RoboticArmInteractive
         isActive={hasInteracted}
         target={target}
         isDark={isDark}
