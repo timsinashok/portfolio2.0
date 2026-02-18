@@ -1,484 +1,234 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Point } from '../types';
+import React, { useEffect, useRef } from 'react';
 
-interface RoboticArmProps {
-  target: Point;
-  isActive: boolean;
-  isDark: boolean;
-  onScoreUpdate?: (score: number) => void;
-  onBallState?: (state: { x: number; y: number; vx: number; vy: number }) => void;
-  onEpisodeEnd?: (result: 'goal' | 'miss') => void;
-  autoStart?: boolean;
-  showStartButton?: boolean;
-  resetScoreToken?: number;
-  onFrameState?: (state: {
-    ball: { x: number; y: number; vx: number; vy: number };
-    effector: { x: number; y: number };
-    goal: { x: number; y: number; width: number; height: number };
-    viewport: { width: number; height: number };
-  }) => void;
-}
-
-type GameState = 'waiting' | 'playing' | 'ended';
-
-type Viewport = {
-  width: number;
-  height: number;
-  dpr: number;
+// --- Types ---
+export type PhysicsState = {
+  ball: { x: number; y: number; vx: number; vy: number };
+  effector: { x: number; y: number };
+  goal: { x: number; y: number; width: number; height: number };
+  viewport: { width: number; height: number };
 };
 
-const FRAME_MS = 1000 / 60;
+export type SimulationControl = {
+  reset: () => void;
+};
+
+interface RoboticArmProps {
+  isDark: boolean;
+  isRunning: boolean;
+  simulationSpeed: number;
+  onGetAction: (state: PhysicsState) => { dx: number; dy: number };
+  onEpisodeEnd: (result: 'goal' | 'miss') => void;
+  controlRef: React.MutableRefObject<SimulationControl | null>;
+}
 
 export const RoboticArm: React.FC<RoboticArmProps> = ({
-  target,
-  isActive,
   isDark,
-  onScoreUpdate,
-  onBallState,
+  isRunning,
+  simulationSpeed,
+  onGetAction,
   onEpisodeEnd,
-  autoStart = false,
-  showStartButton = true,
-  resetScoreToken,
-  onFrameState,
+  controlRef
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDarkRef = useRef(isDark);
-  const targetRef = useRef<Point>(target);
-  const isActiveRef = useRef(isActive);
-  const gameStateRef = useRef<GameState>('waiting');
-  const scoreRef = useRef(0);
-  const viewportRef = useRef<Viewport>({
-    width: typeof window === 'undefined' ? 0 : window.innerWidth,
-    height: typeof window === 'undefined' ? 0 : window.innerHeight,
-    dpr: typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1,
+  
+  // Persistent Physics State (Mutable)
+  const phys = useRef({
+    l1: 200, l2: 180,
+    theta1: Math.PI / 2, theta2: Math.PI / 4,
+    targetX: 0, targetY: 0, // IK Targets
+    ball: { x: 400, y: 300, vx: 0, vy: 0, radius: 25, active: false },
+    goal: { x: 0, y: 50, width: 200, height: 10 },
+    width: 800, height: 600,
+    episodeTimer: 0
   });
 
-  const [gameState, setGameState] = useState<GameState>('waiting');
-  const [ballStartPos, setBallStartPos] = useState({ x: 0, y: 250 });
-
+  // Expose Reset
   useEffect(() => {
-    isDarkRef.current = isDark;
-  }, [isDark]);
+    controlRef.current = {
+      reset: () => resetEpisode()
+    };
+  }, []);
 
-  useEffect(() => {
-    targetRef.current = target;
-  }, [target]);
-
-  useEffect(() => {
-    isActiveRef.current = isActive;
-  }, [isActive]);
-
-  useEffect(() => {
-    if (autoStart && gameState === 'waiting') {
-      startGame();
-    }
-  }, [autoStart, gameState]);
-
-  useEffect(() => {
-    if (resetScoreToken === undefined) return;
-    scoreRef.current = 0;
-  }, [resetScoreToken]);
-
-  // Physics state refs
-  const state = useRef({
-    l1: 280,
-    l2: 260,
-    theta1: Math.PI / 2,
-    theta2: Math.PI / 4,
-    targetTheta1: Math.PI / 2,
-    targetTheta2: Math.PI / 4,
-  });
-
-  // Ball physics state
-  const ball = useRef({
-    x: 0,
-    y: 0,
-    vx: 0,
-    vy: 0,
-    radius: 30,
-    startX: 0,
-    startY: 0,
-    prevEEx: 0,
-    prevEEy: 0,
-    lastHitTime: 0,
-  });
-
-  const goal = useRef({
-    x: 0,
-    y: 40,
-    width: 200,
-    height: 60,
-  });
-
-  const startGame = () => {
-    gameStateRef.current = 'playing';
-    setGameState('playing');
-    ball.current.vx = 0;
-    ball.current.vy = 0;
-  };
-
-  const resetBall = () => {
-    ball.current.x = ball.current.startX;
-    ball.current.y = ball.current.startY;
-    ball.current.vx = 0;
-    ball.current.vy = 0;
-    gameStateRef.current = 'waiting';
-    setGameState('waiting');
+  const resetEpisode = () => {
+    const p = phys.current;
+    p.ball.x = p.width / 2 + (Math.random() * 200 - 100);
+    p.ball.y = 200;
+    p.ball.vx = (Math.random() - 0.5) * 10;
+    p.ball.vy = (Math.random() - 0.5) * 10;
+    p.ball.active = true;
+    p.episodeTimer = 0;
+    
+    // Reset Arm partially
+    p.targetX = p.width / 2;
+    p.targetY = p.height / 2;
   };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    let rafId: number;
+    const dt = 1 / 60; // Fixed physics step
 
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-
-      viewportRef.current = { width, height, dpr };
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const startX = width / 2 + 250;
-      const startY = Math.min(height / 2 - 50, 300);
-      ball.current.startX = startX;
-      ball.current.startY = startY;
-      setBallStartPos({ x: startX, y: startY });
-
-      if (gameStateRef.current === 'waiting') {
-        ball.current.x = startX;
-        ball.current.y = startY;
-      }
-
-      goal.current.x = width / 2 - goal.current.width / 2;
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-
-    const solveIK = (x: number, y: number) => {
-      const { width, height } = viewportRef.current;
-      const bx = width / 2;
-      const by = height;
-      let dx = x - bx;
-      let dy = y - by;
+    const solveIK = (tx: number, ty: number) => {
+      const p = phys.current;
+      const bx = p.width / 2;
+      const by = p.height;
+      let dx = tx - bx;
+      let dy = ty - by;
       let dist = Math.sqrt(dx * dx + dy * dy);
-      const maxReach = state.current.l1 + state.current.l2 - 2;
-
+      const maxReach = p.l1 + p.l2 - 2;
+      
       if (dist > maxReach) {
         const ratio = maxReach / dist;
-        dx *= ratio;
-        dy *= ratio;
-        dist = maxReach;
+        dx *= ratio; dy *= ratio; dist = maxReach;
       }
 
+      const cosBeta = (dist**2 + p.l1**2 - p.l2**2) / (2 * dist * p.l1);
+      const beta = Math.acos(Math.max(-1, Math.min(1, cosBeta)));
       const alpha = Math.atan2(dy, dx);
-      const cosBeta =
-        (dist * dist + state.current.l1 * state.current.l1 - state.current.l2 * state.current.l2) /
-        (2 * dist * state.current.l1);
-      const clampedCosBeta = Math.max(-1, Math.min(1, cosBeta));
-      const beta = Math.acos(clampedCosBeta);
+      const theta1 = alpha - beta;
 
-      const cosGamma =
-        (state.current.l1 * state.current.l1 + state.current.l2 * state.current.l2 - dist * dist) /
-        (2 * state.current.l1 * state.current.l2);
-      const clampedCosGamma = Math.max(-1, Math.min(1, cosGamma));
-      const gamma = Math.acos(clampedCosGamma);
+      const cosGamma = (p.l1**2 + p.l2**2 - dist**2) / (2 * p.l1 * p.l2);
+      const gamma = Math.acos(Math.max(-1, Math.min(1, cosGamma)));
+      const theta2 = Math.PI - gamma;
 
-      return { theta1: alpha - beta, theta2: Math.PI - gamma };
+      return { t1: theta1, t2: theta2 };
     };
 
-    let animationFrameId: number;
-    let lastTime = performance.now();
+    const updatePhysics = () => {
+      const p = phys.current;
 
-    const render = (time: number) => {
-      const dt = Math.min(2, (time - lastTime) / FRAME_MS);
-      const dtSafe = Math.max(0.001, dt);
-      lastTime = time;
+      // 1. Get Action from Brain (Synchronous!)
+      if (isRunning && p.ball.active) {
+        // Calculate Effector Pos
+        const bx = p.width/2; 
+        const by = p.height;
+        const j1x = bx + Math.cos(p.theta1) * p.l1;
+        const j1y = by + Math.sin(p.theta1) * p.l1;
+        const ex = j1x + Math.cos(p.theta1 + p.theta2) * p.l2;
+        const ey = j1y + Math.sin(p.theta1 + p.theta2) * p.l2;
 
-      const { width, height } = viewportRef.current;
+        const action = onGetAction({
+          ball: { ...p.ball },
+          effector: { x: ex, y: ey },
+          goal: { ...p.goal },
+          viewport: { width: p.width, height: p.height }
+        });
+
+        // Apply Action to Target
+        p.targetX = Math.max(0, Math.min(p.width, p.targetX + action.dx));
+        p.targetY = Math.max(0, Math.min(p.height, p.targetY + action.dy));
+      }
+
+      // 2. Move Arm (IK + Smoothing)
+      const { t1, t2 } = solveIK(p.targetX, p.targetY);
+      p.theta1 += (t1 - p.theta1) * 0.1;
+      p.theta2 += (t2 - p.theta2) * 0.1;
+
+      // 3. Move Ball
+      if (p.ball.active) {
+        p.ball.vy += 0.5; // Gravity
+        p.ball.x += p.ball.vx;
+        p.ball.y += p.ball.vy;
+
+        // Effector Collision (Simplified)
+        const bx = p.width/2; const by = p.height;
+        const j1x = bx + Math.cos(p.theta1) * p.l1;
+        const j1y = by + Math.sin(p.theta1) * p.l1;
+        const ex = j1x + Math.cos(p.theta1 + p.theta2) * p.l2;
+        const ey = j1y + Math.sin(p.theta1 + p.theta2) * p.l2;
+
+        const dx = p.ball.x - ex;
+        const dy = p.ball.y - ey;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist < p.ball.radius + 15) {
+          // Hit!
+          const nx = dx/dist; const ny = dy/dist;
+          const vRel = (p.ball.vx * nx + p.ball.vy * ny);
+          if (vRel < 0) {
+             p.ball.vx -= 2 * vRel * nx; 
+             p.ball.vy -= 2 * vRel * ny;
+             // Add some "Push" from arm
+             p.ball.vx += (Math.random()-0.5)*5;
+             p.ball.vy -= 10; // Pop up
+          }
+        }
+
+        // Walls
+        if (p.ball.x < 0 || p.ball.x > p.width) p.ball.vx *= -0.8;
+        if (p.ball.y > p.height) {
+            onEpisodeEnd('miss');
+            resetEpisode();
+        }
+
+        // Goal
+        if (p.ball.y < p.goal.y + p.goal.height && 
+            p.ball.x > p.goal.x && p.ball.x < p.goal.x + p.goal.width) {
+            onEpisodeEnd('goal');
+            resetEpisode();
+        }
+      }
+    };
+
+    const loop = () => {
+      // Handle Resize
+      if (canvas.width !== window.innerWidth) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        phys.current.width = canvas.width;
+        phys.current.height = canvas.height;
+        phys.current.goal.x = canvas.width / 2 - 100;
+      }
+
+      // --- CRITICAL: Fast Forward Loop ---
+      const loops = isRunning ? simulationSpeed : 1;
+      for (let i = 0; i < loops; i++) {
+        updatePhysics();
+      }
+
+      // Render (Once per frame)
+      const p = phys.current;
+      const width = canvas.width;
+      const height = canvas.height;
+      
       ctx.clearRect(0, 0, width, height);
+      
+      // Draw Goal
+      ctx.fillStyle = isDark ? '#22c55e' : '#16a34a';
+      ctx.fillRect(p.goal.x, p.goal.y, p.goal.width, p.goal.height);
 
-      const response = 1 - Math.pow(1 - 0.12, dt);
+      // Draw Arm
+      const bx = width/2; const by = height;
+      const j1x = bx + Math.cos(p.theta1) * p.l1;
+      const j1y = by + Math.sin(p.theta1) * p.l1;
+      const ex = j1x + Math.cos(p.theta1 + p.theta2) * p.l2;
+      const ey = j1y + Math.sin(p.theta1 + p.theta2) * p.l2;
 
-      if (!isActiveRef.current) {
-        state.current.targetTheta1 = Math.PI / 2;
-        state.current.targetTheta2 = Math.PI / 4;
-      } else {
-        const solution = solveIK(targetRef.current.x, targetRef.current.y);
-        state.current.targetTheta1 = solution.theta1;
-        state.current.targetTheta2 = solution.theta2;
-      }
-
-      state.current.theta1 += (state.current.targetTheta1 - state.current.theta1) * response;
-      state.current.theta2 += (state.current.targetTheta2 - state.current.theta2) * response;
-
-      const bx = width / 2;
-      const by = height;
-      const j1x = bx + Math.cos(state.current.theta1) * state.current.l1;
-      const j1y = by + Math.sin(state.current.theta1) * state.current.l1;
-      const eex = j1x + Math.cos(state.current.theta1 + state.current.theta2) * state.current.l2;
-      const eey = j1y + Math.sin(state.current.theta1 + state.current.theta2) * state.current.l2;
-
-      if (gameStateRef.current === 'playing') {
-        const gravity = 0.22;
-        const airResistance = Math.pow(0.994, dt);
-        const bounceRestitution = 0.72;
-
-        ball.current.vy += gravity * dt;
-        ball.current.vx *= airResistance;
-        ball.current.vy *= airResistance;
-
-        ball.current.x += ball.current.vx * dt;
-        ball.current.y += ball.current.vy * dt;
-
-        const collideSegment = (
-          ax: number,
-          ay: number,
-          bx: number,
-          by: number,
-          radius: number,
-          now: number
-        ) => {
-          if (now - ball.current.lastHitTime < 60) {
-            return false;
-          }
-          const abx = bx - ax;
-          const aby = by - ay;
-          const apx = ball.current.x - ax;
-          const apy = ball.current.y - ay;
-          const abLenSq = abx * abx + aby * aby || 1;
-          const t = Math.max(0, Math.min(1, (apx * abx + apy * aby) / abLenSq));
-          const cx = ax + abx * t;
-          const cy = ay + aby * t;
-          const dx = ball.current.x - cx;
-          const dy = ball.current.y - cy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist >= radius) return false;
-
-          const nx = dist === 0 ? 0 : dx / dist;
-          const ny = dist === 0 ? -1 : dy / dist;
-
-          ball.current.x = cx + nx * (radius + 0.5);
-          ball.current.y = cy + ny * (radius + 0.5);
-
-          const eeVx = (eex - ball.current.prevEEx) / dtSafe;
-          const eeVy = (eey - ball.current.prevEEy) / dtSafe;
-          const relVx = ball.current.vx - eeVx;
-          const relVy = ball.current.vy - eeVy;
-          const relNormal = relVx * nx + relVy * ny;
-
-          if (relNormal < 0) {
-            const bounce = -relNormal * 1.05;
-            ball.current.vx += nx * bounce + eeVx * 0.35;
-            ball.current.vy += ny * bounce + eeVy * 0.35;
-          } else {
-            ball.current.vx += eeVx * 0.15;
-            ball.current.vy += eeVy * 0.15;
-          }
-
-          ball.current.lastHitTime = now;
-          return true;
-        };
-
-        const armRadius = ball.current.radius + 14;
-        const hitUpper = collideSegment(bx, by, j1x, j1y, armRadius, time);
-        const hitLower = collideSegment(j1x, j1y, eex, eey, armRadius, time);
-
-        if (hitUpper || hitLower) {
-          ball.current.vx *= 0.98;
-          ball.current.vy *= 0.98;
-        }
-
-        if (ball.current.x - ball.current.radius < 0) {
-          ball.current.x = ball.current.radius;
-          ball.current.vx *= -bounceRestitution;
-        }
-        if (ball.current.x + ball.current.radius > width) {
-          ball.current.x = width - ball.current.radius;
-          ball.current.vx *= -bounceRestitution;
-        }
-        if (ball.current.y - ball.current.radius < 0) {
-          ball.current.y = ball.current.radius;
-          ball.current.vy *= -bounceRestitution;
-        }
-
-        if (ball.current.y + ball.current.radius > height) {
-          gameStateRef.current = 'ended';
-          setGameState('ended');
-          onEpisodeEnd?.('miss');
-          resetBall();
-        }
-
-        if (
-          ball.current.x > goal.current.x &&
-          ball.current.x < goal.current.x + goal.current.width &&
-          ball.current.y - ball.current.radius < goal.current.y + goal.current.height &&
-          ball.current.y + ball.current.radius > goal.current.y
-        ) {
-          scoreRef.current += 1;
-          onScoreUpdate?.(scoreRef.current);
-          onEpisodeEnd?.('goal');
-          resetBall();
-        }
-      }
-
-      ball.current.prevEEx = eex;
-      ball.current.prevEEy = eey;
-
-      const theme = isDarkRef.current
-        ? {
-            stroke: '#f59e0b',
-            jointFill: '#18181b',
-            jointStroke: '#f59e0b',
-            accent: '#f59e0b',
-          }
-        : {
-            stroke: '#d97706',
-            jointFill: '#f4f4f5',
-            jointStroke: '#d97706',
-            accent: '#d97706',
-          };
-
-      ctx.strokeStyle = theme.stroke;
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = isDark ? '#a1a1aa' : '#52525b';
+      ctx.lineWidth = 8;
       ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
       ctx.beginPath();
-      ctx.arc(bx, by, 6, Math.PI, 0);
+      ctx.moveTo(bx, by); ctx.lineTo(j1x, j1y); ctx.lineTo(ex, ey);
       ctx.stroke();
 
-      ctx.beginPath();
-      ctx.moveTo(bx, by);
-      ctx.lineTo(j1x, j1y);
-      ctx.stroke();
+      // Draw Ball
+      if (p.ball.active) {
+        ctx.fillStyle = isDark ? '#f472b6' : '#db2777';
+        ctx.beginPath();
+        ctx.arc(p.ball.x, p.ball.y, p.ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-      ctx.beginPath();
-      ctx.fillStyle = theme.jointFill;
-      ctx.strokeStyle = theme.jointStroke;
-      ctx.lineWidth = 1;
-      ctx.arc(j1x, j1y, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = theme.stroke;
-      ctx.moveTo(j1x, j1y);
-      ctx.lineTo(eex, eey);
-      ctx.stroke();
-
-      const globalAngle = state.current.theta1 + state.current.theta2;
-      const gripLen = 15;
-
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.moveTo(eex, eey);
-      ctx.lineTo(eex + Math.cos(globalAngle) * gripLen, eey + Math.sin(globalAngle) * gripLen);
-      ctx.stroke();
-
-      ctx.fillStyle = theme.accent;
-      ctx.beginPath();
-      ctx.arc(
-        eex + Math.cos(globalAngle) * gripLen,
-        eey + Math.sin(globalAngle) * gripLen,
-        3,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-
-      ctx.strokeStyle = theme.accent;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(goal.current.x, goal.current.y + goal.current.height);
-      ctx.lineTo(goal.current.x, goal.current.y);
-      ctx.lineTo(goal.current.x + goal.current.width, goal.current.y);
-      ctx.lineTo(goal.current.x + goal.current.width, goal.current.y + goal.current.height);
-      ctx.stroke();
-
-      ctx.fillStyle = theme.accent;
-      ctx.font = 'bold 24px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(`GOALS: ${scoreRef.current}`, width / 2, 25);
-
-      const currentGameState = gameStateRef.current;
-      const ballOpacity = currentGameState === 'waiting' ? 1.0 : 0.7;
-      ctx.globalAlpha = ballOpacity;
-      ctx.fillStyle = theme.accent;
-      ctx.beginPath();
-      ctx.arc(ball.current.x, ball.current.y, ball.current.radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.strokeStyle = isDarkRef.current ? '#fbbf24' : '#b45309';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.globalAlpha = 1.0;
-
-      onBallState?.({
-        x: ball.current.x,
-        y: ball.current.y,
-        vx: ball.current.vx,
-        vy: ball.current.vy,
-      });
-      onFrameState?.({
-        ball: { x: ball.current.x, y: ball.current.y, vx: ball.current.vx, vy: ball.current.vy },
-        effector: { x: eex, y: eey },
-        goal: {
-          x: goal.current.x,
-          y: goal.current.y,
-          width: goal.current.width,
-          height: goal.current.height,
-        },
-        viewport: { width, height },
-      });
-
-      animationFrameId = requestAnimationFrame(render);
+      rafId = requestAnimationFrame(loop);
     };
 
-    animationFrameId = requestAnimationFrame(render);
+    rafId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafId);
+  }, [isRunning, simulationSpeed, isDark]);
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', resize);
-    };
-  }, [onScoreUpdate, onBallState, onEpisodeEnd]);
-
-  return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40 mix-blend-multiply dark:mix-blend-screen"
-        style={{ willChange: 'transform' }}
-      />
-
-      {showStartButton && gameState === 'waiting' && ballStartPos.x > 0 && (
-        <button
-          onClick={startGame}
-          className="absolute z-10 pointer-events-auto group"
-          style={{
-            left: `${ballStartPos.x}px`,
-            top: `${ballStartPos.y}px`,
-            transform: 'translate(-50%, -50%)',
-          }}
-          aria-label="Start juggling"
-        >
-          <div className="relative">
-            <div className="w-[60px] h-[60px] rounded-full bg-accent-600 dark:bg-accent-500 border-2 border-accent-700 dark:border-accent-600 shadow-lg transition-all duration-200 group-hover:scale-110 group-hover:shadow-xl flex items-center justify-center">
-              <span className="text-white font-mono text-xs font-bold tracking-tight">START</span>
-            </div>
-          </div>
-        </button>
-      )}
-    </>
-  );
+  return <canvas ref={canvasRef} className="w-full h-full block" />;
 };
