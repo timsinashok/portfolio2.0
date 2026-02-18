@@ -45,7 +45,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({
 
   const resetEpisode = () => {
     const p = phys.current;
-    p.ball.x = p.width / 2 + (Math.random() * 180 - 90);
+    p.ball.x = p.width / 2 + 140 + (Math.random() * 120 - 60);
     p.ball.y = Math.min(p.height / 2 - 40, 260);
     p.ball.vx = (Math.random() - 0.5) * 6;
     p.ball.vy = (Math.random() - 0.5) * 4;
