@@ -46,8 +46,8 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
   const goal = useRef({
     x: 0,
     y: 40,
-    width: 120,
-    height: 50,
+    width: 200,
+    height: 60,
   });
 
   const startGame = () => {
@@ -305,7 +305,13 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
       ctx.strokeStyle = theme.accent;
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.rect(goal.current.x, goal.current.y, goal.current.width, goal.current.height);
+      // Left vertical line
+      ctx.moveTo(goal.current.x, goal.current.y + goal.current.height);
+      ctx.lineTo(goal.current.x, goal.current.y);
+      // Top horizontal line
+      ctx.lineTo(goal.current.x + goal.current.width, goal.current.y);
+      // Right vertical line
+      ctx.lineTo(goal.current.x + goal.current.width, goal.current.y + goal.current.height);
       ctx.stroke();
 
       // Draw score
