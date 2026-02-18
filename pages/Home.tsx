@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useOutletContext } from 'react-router-dom';
 import { ArrowRight, Github, Linkedin, Twitter } from 'lucide-react';
@@ -7,15 +7,35 @@ import { Point } from '../types';
 
 export const Home: React.FC = () => {
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [target, setTarget] = useState<Point>({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [target, setTarget] = useState<Point>({ x: 0, y: 0 });
+  const [score, setScore] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const pendingTargetRef = useRef<Point | null>(null);
   const { isDark } = useOutletContext<{ isDark: boolean }>();
+
+  useEffect(() => {
+    setTarget({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
 
   const handleInteraction = (e: React.PointerEvent) => {
     if (!hasInteracted) {
       setHasInteracted(true);
     }
-    setTarget({ x: e.clientX, y: e.clientY });
+    pendingTargetRef.current = { x: e.clientX, y: e.clientY };
+    if (rafRef.current === null) {
+      rafRef.current = requestAnimationFrame(() => {
+        if (pendingTargetRef.current) {
+          setTarget(pendingTargetRef.current);
+        }
+        rafRef.current = null;
+      });
+    }
   };
 
   return (
@@ -50,7 +70,7 @@ export const Home: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
-          Innovating Intelligent systems that <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-800 to-zinc-500 dark:from-zinc-100 dark:to-zinc-500">learn, reason and adapt</span> the world.
+          I build intelligent systems that <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-800 to-zinc-500 dark:from-zinc-100 dark:to-zinc-500">learn, reason, and adapt</span> to the world.
         </motion.h1>
 
         <motion.p 
@@ -59,7 +79,7 @@ export const Home: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
         >
-          Applied intelligence across healthcare, robotics, and infrastructure. <br className="hidden md:block"/>
+          Applied intelligence across healthcare, robotics, and infrastructure.
         </motion.p>
 
         {/* CTA reveals on interaction */}
@@ -98,11 +118,19 @@ export const Home: React.FC = () => {
         transition={{ duration: 1 }}
         className="absolute bottom-32 text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-600 font-mono pointer-events-none z-20"
       >
-        Interact to explore
+        Move to guide the arm
       </motion.div>
 
       {/* Robotic Arm Layer */}
-      <RoboticArm isActive={hasInteracted} target={target} isDark={isDark} />
+      <div className="absolute top-28 right-6 md:right-12 z-30 text-xs font-mono text-zinc-500 dark:text-zinc-500 pointer-events-none">
+        Goals: <span className="text-zinc-900 dark:text-zinc-100">{score.toString().padStart(2, '0')}</span>
+      </div>
+      <RoboticArm
+        isActive={hasInteracted}
+        target={target}
+        isDark={isDark}
+        onScoreUpdate={setScore}
+      />
       
     </div>
   );

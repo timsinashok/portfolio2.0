@@ -18,9 +18,12 @@ export const WorkDetail: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
       >
         <span className="font-mono text-accent-600 dark:text-accent-500 text-base mb-4 block">Case Study: {id}</span>
-        <h1 className="text-5xl md:text-7xl font-medium text-zinc-900 dark:text-zinc-100 mb-12">
+        <h1 className="text-5xl md:text-7xl font-medium text-zinc-900 dark:text-zinc-100 mb-6">
           System Architecture & Failure Modes
         </h1>
+        <p className="text-zinc-600 dark:text-zinc-400 text-xl max-w-3xl">
+          A field-tested autonomy stack designed for safe operation under uncertainty with clear, measurable failure boundaries.
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mt-20">
           <div className="md:col-span-2 space-y-8 text-zinc-700 dark:text-zinc-400 leading-relaxed text-xl">
@@ -58,6 +61,15 @@ export const WorkDetail: React.FC = () => {
                    Live Demo
                  </a>
                </div>
+             </div>
+
+             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 rounded-sm">
+               <h4 className="text-zinc-900 dark:text-zinc-200 font-medium mb-6 text-base">Snapshot</h4>
+               <ul className="space-y-3 text-sm text-zinc-600 dark:text-zinc-400">
+                 <li>Role: Systems Engineer</li>
+                 <li>Focus: Safe motion planning</li>
+                 <li>Timeline: 2023–2024</li>
+               </ul>
              </div>
 
              <div className="aspect-square bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">

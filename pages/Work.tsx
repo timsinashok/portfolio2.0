@@ -23,8 +23,11 @@ export const Work: React.FC = () => {
         {/* Intro Paragraph */}
         <div className="md:col-span-12 mb-6">
            <h1 className="text-4xl md:text-5xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight">
-             I think robots will win the world in 2 years.
+             Robotics and systems work focused on reliability in real-world environments.
            </h1>
+           <p className="mt-4 text-zinc-600 dark:text-zinc-400 text-lg font-light max-w-3xl">
+             I build end-to-end stacks that move from simulation to deployment with measurable safety and performance constraints.
+           </p>
         </div>
 
         {/* Columns: Building / Interests */}
@@ -33,19 +36,19 @@ export const Work: React.FC = () => {
            <ul className="space-y-2 text-zinc-700 dark:text-zinc-300 font-light text-base">
              <li className="flex items-center gap-4">
                 <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse"></span>
-                Teleoperation Latency Solver
+                Low-latency teleoperation stack
              </li>
-             <li>Rust-based Vision Pipeline</li>
-             <li>Multi-agent RL Environment</li>
+             <li>Rust-based perception pipeline</li>
+             <li>Multi-agent RL evaluation harness</li>
            </ul>
         </div>
 
         <div className="md:col-span-5 space-y-4">
            <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest">Current Interests</h3>
            <ul className="space-y-2 text-zinc-600 dark:text-zinc-400 font-light text-base">
-             <li>Sim2Real Transfer</li>
-             <li>Neuromorphic Computing</li>
-             <li>Industrial Automation</li>
+             <li>Sim-to-real transfer</li>
+             <li>Hybrid planning + learning</li>
+             <li>Safety under uncertainty</li>
            </ul>
         </div>
 
@@ -58,7 +61,7 @@ export const Work: React.FC = () => {
                  Principal Systems Engineer at <span className="text-zinc-500">Stealth Robotics Co.</span>
               </h4>
               <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-300 font-light max-w-4xl leading-relaxed">
-                 Leading the autonomous navigation stack for warehouse logistics. Specifically focused on solving the 'frozen robot' problem in high-density human environments using predictive world models and lightweight edge inference.
+                 Leading autonomous navigation for warehouse logistics with a focus on safe motion planning in dense, human environments.
               </p>
            </div>
         </div>
