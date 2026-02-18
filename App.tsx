@@ -5,6 +5,7 @@ import { Home } from './pages/Home';
 import { Work } from './pages/Work';
 import { WorkDetail } from './pages/WorkDetail';
 import { Writing } from './pages/Writing';
+import { Experiments } from './pages/Experiments';
 
 const App: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const App: React.FC = () => {
           <Route path="work" element={<Work />} />
           <Route path="work/:id" element={<WorkDetail />} />
           <Route path="writing" element={<Writing />} />
+          <Route path="experiments" element={<Experiments />} />
         </Route>
       </Routes>
     </HashRouter>

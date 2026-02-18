@@ -6,6 +6,17 @@ interface RoboticArmProps {
   isActive: boolean;
   isDark: boolean;
   onScoreUpdate?: (score: number) => void;
+  onBallState?: (state: { x: number; y: number; vx: number; vy: number }) => void;
+  onEpisodeEnd?: (result: 'goal' | 'miss') => void;
+  autoStart?: boolean;
+  showStartButton?: boolean;
+  resetScoreToken?: number;
+  onFrameState?: (state: {
+    ball: { x: number; y: number; vx: number; vy: number };
+    effector: { x: number; y: number };
+    goal: { x: number; y: number; width: number; height: number };
+    viewport: { width: number; height: number };
+  }) => void;
 }
 
 type GameState = 'waiting' | 'playing' | 'ended';
@@ -18,7 +29,18 @@ type Viewport = {
 
 const FRAME_MS = 1000 / 60;
 
-export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark, onScoreUpdate }) => {
+export const RoboticArm: React.FC<RoboticArmProps> = ({
+  target,
+  isActive,
+  isDark,
+  onScoreUpdate,
+  onBallState,
+  onEpisodeEnd,
+  autoStart = false,
+  showStartButton = true,
+  resetScoreToken,
+  onFrameState,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDarkRef = useRef(isDark);
   const targetRef = useRef<Point>(target);
@@ -45,6 +67,17 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
   useEffect(() => {
     isActiveRef.current = isActive;
   }, [isActive]);
+
+  useEffect(() => {
+    if (autoStart && gameState === 'waiting') {
+      startGame();
+    }
+  }, [autoStart, gameState]);
+
+  useEffect(() => {
+    if (resetScoreToken === undefined) return;
+    scoreRef.current = 0;
+  }, [resetScoreToken]);
 
   // Physics state refs
   const state = useRef({
@@ -281,6 +314,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
         if (ball.current.y + ball.current.radius > height) {
           gameStateRef.current = 'ended';
           setGameState('ended');
+          onEpisodeEnd?.('miss');
           resetBall();
         }
 
@@ -292,6 +326,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
         ) {
           scoreRef.current += 1;
           onScoreUpdate?.(scoreRef.current);
+          onEpisodeEnd?.('goal');
           resetBall();
         }
       }
@@ -389,6 +424,24 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
       ctx.stroke();
       ctx.globalAlpha = 1.0;
 
+      onBallState?.({
+        x: ball.current.x,
+        y: ball.current.y,
+        vx: ball.current.vx,
+        vy: ball.current.vy,
+      });
+      onFrameState?.({
+        ball: { x: ball.current.x, y: ball.current.y, vx: ball.current.vx, vy: ball.current.vy },
+        effector: { x: eex, y: eey },
+        goal: {
+          x: goal.current.x,
+          y: goal.current.y,
+          width: goal.current.width,
+          height: goal.current.height,
+        },
+        viewport: { width, height },
+      });
+
       animationFrameId = requestAnimationFrame(render);
     };
 
@@ -398,7 +451,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resize);
     };
-  }, [onScoreUpdate]);
+  }, [onScoreUpdate, onBallState, onEpisodeEnd]);
 
   return (
     <>
@@ -408,7 +461,7 @@ export const RoboticArm: React.FC<RoboticArmProps> = ({ target, isActive, isDark
         style={{ willChange: 'transform' }}
       />
 
-      {gameState === 'waiting' && ballStartPos.x > 0 && (
+      {showStartButton && gameState === 'waiting' && ballStartPos.x > 0 && (
         <button
           onClick={startGame}
           className="absolute z-10 pointer-events-auto group"
