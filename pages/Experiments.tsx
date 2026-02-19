@@ -55,9 +55,11 @@ export const Experiments: React.FC = () => {
   const [speed, setSpeed] = useState(1);
   const simControlRef = useRef<SimulationControl | null>(null);
   const trajectoryRef = useRef<StepRecord[]>([]);
+  const batchTrajRef = useRef<StepRecord[][]>([]);
   const weightsRef = useRef(createWeights());
-  const stdRef = useRef(0.4);
+  const stdRef = useRef(0.5);
   const baselineRef = useRef(0);
+  const batchEpisodesRef = useRef(0);
 
   const policyMeta = useMemo(() => policyCopy[policy], [policy]);
   const successRate = episodes > 0 ? Math.round((goals / episodes) * 100) : 0;
@@ -69,8 +71,11 @@ export const Experiments: React.FC = () => {
     setMisses(0);
     setRewardHistory([]);
     trajectoryRef.current = [];
+    batchTrajRef.current = [];
     weightsRef.current = createWeights();
     baselineRef.current = 0;
+    stdRef.current = 0.5;
+    batchEpisodesRef.current = 0;
     setIsRunning(true);
     simControlRef.current?.reset();
   };
@@ -154,79 +159,100 @@ export const Experiments: React.FC = () => {
     const finalReward = result === 'goal' ? 1 : -1;
     traj[traj.length - 1].reward += finalReward;
 
-    const returns: number[] = [];
-    let G = 0;
-    const gamma = 0.99;
-    for (let i = traj.length - 1; i >= 0; i -= 1) {
-      G = traj[i].reward + gamma * G;
-      returns[i] = G;
+    batchTrajRef.current.push(traj);
+    trajectoryRef.current = [];
+    batchEpisodesRef.current += 1;
+
+    if (policy === 'ppo' && batchEpisodesRef.current < 4) {
+      return;
     }
 
-    const episodeReturn = returns[0] || 0;
-    baselineRef.current = 0.95 * baselineRef.current + 0.05 * episodeReturn;
-    const advantages = returns.map(ret => ret - baselineRef.current);
+    const trainBatch = policy === 'ppo' ? batchTrajRef.current : [traj];
+    const gamma = 0.99;
+    const returnsPerTraj: number[][] = [];
+    const episodeReturns: number[] = [];
+
+    for (const t of trainBatch) {
+      const returns: number[] = [];
+      let G = 0;
+      for (let i = t.length - 1; i >= 0; i -= 1) {
+        G = t[i].reward + gamma * G;
+        returns[i] = G;
+      }
+      returnsPerTraj.push(returns);
+      episodeReturns.push(returns[0] || 0);
+    }
+
+    const meanEpisodeReturn =
+      episodeReturns.reduce((acc, value) => acc + value, 0) / Math.max(1, episodeReturns.length);
+    baselineRef.current = 0.95 * baselineRef.current + 0.05 * meanEpisodeReturn;
 
     const weights = weightsRef.current;
-    const lr = 0.005;
-    const clip = 0.2;
-    const epochs = policy === 'ppo' ? 4 : 1;
+    const lr = policy === 'ppo' ? 0.003 : 0.005;
+    const clip = policy === 'ppo' ? 0.35 : 0.2;
+    const epochs = policy === 'ppo' ? 2 : 1;
+    const stdAction = stdRef.current;
+    const invVar = 1 / (stdAction * stdAction);
 
     for (let epoch = 0; epoch < epochs; epoch += 1) {
-      for (let i = 0; i < traj.length; i += 1) {
-        const adv = advantages[i];
-        const state = traj[i].state;
-        const action = traj[i].action;
-        const oldLogProb = traj[i].logProb;
+      for (let tIndex = 0; tIndex < trainBatch.length; tIndex += 1) {
+        const steps = trainBatch[tIndex];
+        const returns = returnsPerTraj[tIndex];
+        for (let i = 0; i < steps.length; i += 1) {
+          const adv = returns[i] - baselineRef.current;
+          const state = steps[i].state;
+          const action = steps[i].action;
+          const oldLogProb = steps[i].logProb;
 
-        const hidden = new Float32Array(HIDDEN_SIZE);
-        for (let h = 0; h < HIDDEN_SIZE; h += 1) {
-          let sum = weights.b1[h];
-          for (let j = 0; j < STATE_SIZE; j += 1) {
-            sum += state[j] * weights.w1[h * STATE_SIZE + j];
+          const hidden = new Float32Array(HIDDEN_SIZE);
+          for (let h = 0; h < HIDDEN_SIZE; h += 1) {
+            let sum = weights.b1[h];
+            for (let j = 0; j < STATE_SIZE; j += 1) {
+              sum += state[j] * weights.w1[h * STATE_SIZE + j];
+            }
+            hidden[h] = Math.tanh(sum);
           }
-          hidden[h] = Math.tanh(sum);
-        }
 
-        const mean = [0, 0];
-        for (let out = 0; out < 2; out += 1) {
-          let sum = weights.b2[out];
-          for (let j = 0; j < HIDDEN_SIZE; j += 1) {
-            sum += hidden[j] * weights.w2[out * HIDDEN_SIZE + j];
+          const mean = [0, 0];
+          for (let out = 0; out < 2; out += 1) {
+            let sum = weights.b2[out];
+            for (let j = 0; j < HIDDEN_SIZE; j += 1) {
+              sum += hidden[j] * weights.w2[out * HIDDEN_SIZE + j];
+            }
+            mean[out] = sum;
           }
-          mean[out] = sum;
-        }
 
-        const stdAction = stdRef.current;
-        const newLogProb = gaussianLogProb(action, [mean[0], mean[1]], stdAction);
-        const ratio = Math.exp(newLogProb - oldLogProb);
-        const clipped = clamp(ratio, 1 - clip, 1 + clip);
-        const useUpdate = policy === 'pg' || ratio * adv < clipped * adv;
-        if (!useUpdate) continue;
+          const newLogProb = gaussianLogProb(action, [mean[0], mean[1]], stdAction);
+          const ratio = Math.exp(newLogProb - oldLogProb);
+          const clipped = clamp(ratio, 1 - clip, 1 + clip);
+          const useUpdate = policy === 'pg' || ratio * adv < clipped * adv;
+          if (!useUpdate) continue;
 
-        const gradMult = lr * adv * ratio;
-        const invVar = 1 / (stdAction * stdAction);
-        const dMean = [
-          gradMult * (action[0] - mean[0]) * invVar,
-          gradMult * (action[1] - mean[1]) * invVar,
-        ];
+          const gradMult = lr * adv * ratio;
+          const dMean = [
+            gradMult * (action[0] - mean[0]) * invVar,
+            gradMult * (action[1] - mean[1]) * invVar,
+          ];
 
-        for (let out = 0; out < 2; out += 1) {
-          weights.b2[out] += dMean[out];
-          for (let j = 0; j < HIDDEN_SIZE; j += 1) {
-            const idx = out * HIDDEN_SIZE + j;
-            weights.w2[idx] += dMean[out] * hidden[j];
-            const dHidden = dMean[out] * weights.w2[idx] * (1 - hidden[j] * hidden[j]);
-            weights.b1[j] += dHidden;
-            for (let k = 0; k < STATE_SIZE; k += 1) {
-              weights.w1[j * STATE_SIZE + k] += dHidden * state[k];
+          for (let out = 0; out < 2; out += 1) {
+            weights.b2[out] += dMean[out];
+            for (let j = 0; j < HIDDEN_SIZE; j += 1) {
+              const idx = out * HIDDEN_SIZE + j;
+              weights.w2[idx] += dMean[out] * hidden[j];
+              const dHidden = dMean[out] * weights.w2[idx] * (1 - hidden[j] * hidden[j]);
+              weights.b1[j] += dHidden;
+              for (let k = 0; k < STATE_SIZE; k += 1) {
+                weights.w1[j * STATE_SIZE + k] += dHidden * state[k];
+              }
             }
           }
         }
       }
     }
 
-    trajectoryRef.current = [];
-    stdRef.current = Math.max(0.05, stdRef.current * 0.995);
+    batchTrajRef.current = [];
+    batchEpisodesRef.current = 0;
+    stdRef.current = Math.max(0.1, stdRef.current * 0.998);
   };
 
   return (
