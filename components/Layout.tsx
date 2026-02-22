@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Mail, Plus, Sun, Moon } from 'lucide-react';
+import { Mail, Plus, Sun, Moon } from 'lucide-react';
 
 export const Layout: React.FC = () => {
   const location = useLocation();
@@ -120,24 +120,40 @@ export const Layout: React.FC = () => {
                         <Plus className="rotate-45 w-5 h-5" />
                       </button>
                    </div>
-                   <div className="space-y-4">
-                     <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm">
-                       <code className="text-sm text-zinc-600 dark:text-zinc-300">at5282@nyu.edu</code>
-                       <button 
-                         onClick={() => navigator.clipboard.writeText('at5282@nyu.edu')}
-                         className="text-zinc-400 hover:text-accent-500 transition-colors"
-                         aria-label="Copy email"
-                       >
-                         <Copy className="w-4 h-4" />
-                       </button>
-                     </div>
-                     <a 
-                       href="mailto:at5282@nyu.edu" 
+                   <form
+                     action="https://formspree.io/f/xqedyrjl"
+                     method="POST"
+                     className="space-y-4"
+                   >
+                     <input type="hidden" name="_subject" value="New message from portfolio contact form" />
+                     <input
+                       type="text"
+                       name="name"
+                       required
+                       placeholder="Name"
+                       className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm text-sm text-zinc-700 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent-500/40"
+                     />
+                     <input
+                       type="email"
+                       name="email"
+                       required
+                       placeholder="Email"
+                       className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm text-sm text-zinc-700 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent-500/40"
+                     />
+                     <textarea
+                       name="message"
+                       required
+                       rows={4}
+                       placeholder="Message"
+                       className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm text-sm text-zinc-700 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent-500/40 resize-none"
+                     />
+                     <button
+                       type="submit"
                        className="block w-full text-center text-sm bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 py-3 font-medium hover:bg-accent-500 dark:hover:bg-accent-500 hover:text-white dark:hover:text-white transition-colors rounded-sm"
                      >
-                       Open Mail Client
-                     </a>
-                   </div>
+                       Send Message
+                     </button>
+                   </form>
                  </motion.div>
                )}
              </AnimatePresence>
