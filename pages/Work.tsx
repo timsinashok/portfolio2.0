@@ -23,11 +23,8 @@ export const Work: React.FC = () => {
         {/* Intro Paragraph */}
         <div className="md:col-span-12 mb-6">
            <h1 className="text-4xl md:text-5xl font-medium text-zinc-900 dark:text-zinc-100 leading-tight">
-             Robotics and systems work focused on reliability in real-world environments.
+             I design scalable systems that learn from state-only signals and make real-world robotics simpler, safer, and easier to use.
            </h1>
-           <p className="mt-4 text-zinc-600 dark:text-zinc-400 text-lg font-light max-w-3xl">
-             I build end-to-end stacks that move from simulation to deployment with measurable safety and performance constraints.
-           </p>
         </div>
 
         {/* Columns: Building / Interests */}
@@ -36,36 +33,50 @@ export const Work: React.FC = () => {
            <ul className="space-y-2 text-zinc-700 dark:text-zinc-300 font-light text-base">
              <li className="flex items-center gap-4">
                 <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse"></span>
-                Low-latency teleoperation stack
+                Sample-efficient offline RL algorithms
              </li>
-             <li>Rust-based perception pipeline</li>
-             <li>Multi-agent RL evaluation harness</li>
+             <li>Simulation-based robot data</li>
+             <li>Vibe coder's keyboard</li>
            </ul>
         </div>
 
         <div className="md:col-span-5 space-y-4">
            <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest">Current Interests</h3>
            <ul className="space-y-2 text-zinc-600 dark:text-zinc-400 font-light text-base">
+             <li>Planning using state-only data</li>
              <li>Sim-to-real transfer</li>
-             <li>Hybrid planning + learning</li>
-             <li>Safety under uncertainty</li>
+             <li>Evaluation frameworks for foundation robot policies</li>
            </ul>
         </div>
 
         {/* New Section: Current Involvement */}
         <div className="md:col-span-12 mt-9 pt-9 border-t border-zinc-200 dark:border-zinc-800">
            <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-4">Current Involvement</h3>
-           <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-10 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
-              <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
-              <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-4">
-                 Principal Systems Engineer at <span className="text-zinc-500">Stealth Robotics Co.</span>
-              </h4>
-              <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-300 font-light max-w-4xl leading-relaxed">
-                 Leading autonomous navigation for warehouse logistics with a focus on safe motion planning in dense, human environments.
-              </p>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
+                <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-3">
+                  NYUAD Deep Learning Lab <span className="text-zinc-500">• Deep Learning Researcher</span>
+                </h4>
+                <p className="text-base text-zinc-600 dark:text-zinc-300 font-light leading-relaxed">
+                  Researching learning from state-only data and building sample-efficient offline RL and world-model pipelines for robot learning.
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
+                <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-3">
+                  Confyde.ai <span className="text-zinc-500">• Founding Engineer, Backend & AI</span>
+                </h4>
+                <p className="text-base text-zinc-600 dark:text-zinc-300 font-light leading-relaxed">
+                  Building scalable AI backends and agent orchestration for pharma market research, from data pipelines to deployed services.
+                </p>
+              </div>
            </div>
         </div>
       </motion.div>
+
+      <div className="mt-14 mb-16 border-t border-zinc-200 dark:border-zinc-800" />
 
       {/* Projects Title */}
       <motion.div

@@ -2,78 +2,70 @@ import { Project } from '../types';
 
 export const PROJECTS: Project[] = [
   {
-    id: 'clinical-risk',
-    title: 'Clinical Trial Protocol Risk Copilot',
-    category: 'Healthcare NLP',
-    description: 'Reducing protocol amendments by 14% via hybrid RAG architecture.',
-    longDescription: [
-      'Problem: Protocol amendments cost pharma $2B/yr due to avoidable eligibility conflicts.',
-      'Constraint: Must run on-prem (HIPAA) with interpretable citation chains.',
-      'Decision: Hybrid RAG architecture + rule-based constraints engine over pure LLM.',
-      'Outcome: Reduced protocol amendments by 14% in pilot phase.'
-    ],
-    imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
-    tech: ['Python', 'LangChain', 'PostgreSQL', 'React'],
-    links: { github: '#', demo: '#' }
-  },
-  {
-    id: 'hazard-prediction',
-    title: 'Future-aware Hazard Prediction',
+    id: 'sentinel-ai',
+    title: 'Sentinel AI',
     category: 'World Models',
-    description: 'Lightweight state-space model for autonomous forklift trajectory forecasting.',
+    description: 'Real-time accident prediction from CCTV using world models.',
     longDescription: [
-      'Problem: Autonomous forklifts freeze in complex warehouses, lowering throughput.',
-      'Constraint: <50ms latency inference budget on edge hardware.',
-      'Decision: Distilled Transformer into lightweight state-space model for trajectory forecasting.',
-      'Outcome: 3x reduction in "ghost braking" events; deployed to 400+ units.'
+      'Optimized NVIDIA Cosmos 2.5 Predict by 1800x, cutting inference from 30 minutes to under 1 second.',
+      'Re-engineered the model to operate in latent space, reaching 80% accuracy with only 1,500 videos.',
+      'Delivered the end-to-end system in 36 hours for real-time CCTV risk forecasting.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
-    tech: ['PyTorch', 'C++', 'CUDA', 'ROS 2'],
-    links: { github: '#', writeup: '#' }
+    imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    tech: ['PyTorch', 'CUDA', 'World Models', 'CCTV'],
+    links: { github: 'https://github.com/timsinashok/Sentinel-AI' }
   },
   {
-    id: 'b2b-platform',
-    title: 'Multi-tenant B2B Data Platform',
-    category: 'Infrastructure',
-    description: 'Scaling to 50M daily events with zero-downtime migration.',
+    id: 'deepmesh',
+    title: 'Deepmesh (MeshAI)',
+    category: 'Market Research',
+    description: 'Survey-as-software that automates design, targeting, and real-time insight generation.',
     longDescription: [
-      'Problem: Legacy system collapsed under high-frequency writes from IoT sensors.',
-      'Constraint: Zero downtime migration required for enterprise SLAs.',
-      'Decision: Vertical partitioning strategy with Supabase + Next.js Edge handling ingestion.',
-      'Outcome: Scaled to 50M daily events with 99.99% uptime.'
+      'Built an AI-powered market research platform that turns business objectives into research-grade surveys in minutes.',
+      'Integrated a WhatsApp-based survey agent and orchestrated multi-turn conversations across text and voice.',
+      'Extracted structured insights from responses to reduce time-to-insight from weeks to minutes.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1558494949-ef526b0042a0?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
-    tech: ['Next.js', 'Supabase', 'Redis', 'FastAPI'],
-    links: { demo: '#' }
+    imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    tech: ['FastAPI', 'LLMs', 'WhatsApp', 'PostgreSQL'],
+    links: { github: 'https://github.com/timsinashok' }
   },
   {
-    id: 'sim-to-real',
-    title: 'Sim-to-real Stress Testing Suite',
-    category: 'Robotics',
-    description: 'Increasing zero-shot transfer success from 60% to 88%.',
+    id: 'medbud',
+    title: 'MedBud',
+    category: 'Health Tech',
+    description: 'Symptom tracking and insights platform for a React Native app.',
     longDescription: [
-      'Problem: Simulation success rates correlated poorly with real-world grasping.',
-      'Constraint: Limited physical hardware access for verification.',
-      'Decision: Built domain-randomization pipeline focused on lighting and texture noise.',
-      'Outcome: Increased zero-shot transfer success from 60% to 88%.'
+      'Built the backend with FastAPI and MongoDB for user symptom logs and analytics.',
+      'Implemented Google OAuth with Firebase and deployed the service on Render.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
-    tech: ['Isaac Sim', 'Python', 'Docker', 'AWS'],
-    links: { github: '#', writeup: '#' }
+    imageUrl: 'https://images.unsplash.com/photo-1580281657521-7890f3188670?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    tech: ['FastAPI', 'MongoDB', 'React Native', 'Firebase'],
+    links: { github: 'https://github.com/timsinashok/medBud' }
   },
   {
-    id: 'quant-automation',
-    title: 'Options Strategy Automation',
-    category: 'Finance',
-    description: 'Deterministic state machine for volatility arbitrage execution.',
+    id: 'spexy',
+    title: 'Spexy',
+    category: 'Computer Vision',
+    description: 'Glasses recommendation system with face-shape detection.',
     longDescription: [
-      'Problem: Manual execution of volatility arbitrage was too slow for market shifts.',
-      'Constraint: Absolute correctness required; no "hallucination" allowed in orders.',
-      'Decision: Deterministic state machine core with ML only used for signal generation.',
-      'Outcome: Automated 95% of trade execution flow with 0 errors.'
+      'Developed a full-stack app with React, FastAPI, and MongoDB.',
+      'Integrated a YOLOv5-based face shape detector achieving 86% accuracy and deployed with Docker on GCP.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1611974765270-ca12586343bb?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
-    tech: ['Rust', 'Python', 'gRPC', 'TimescaleDB'],
-    links: { github: '#' }
+    imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    tech: ['React', 'FastAPI', 'MongoDB', 'YOLOv5'],
+    links: { github: 'https://github.com/timsinashok/spexy' }
+  },
+  {
+    id: 'assignmeant',
+    title: 'assignMeant',
+    category: 'EdTech',
+    description: 'Personalized assignment platform with LLM-powered grading.',
+    longDescription: [
+      'Prototyped a full-stack platform with a Flask backend and Llama-3-8B integration.',
+      'Built an auto-grader using a fine-tuned LLM that reached 95% accuracy on grade-level math.'
+    ],
+    imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    tech: ['Flask', 'Llama-3-8B', 'Python', 'LLMs'],
+    links: { github: 'https://github.com/timsinashok/assignmeant-mvp' }
   }
 ];

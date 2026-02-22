@@ -94,7 +94,7 @@ export const Home: React.FC = () => {
               to="/work" 
               className="group inline-flex items-center gap-3 text-base font-medium text-accent-600 dark:text-accent-500 hover:text-accent-700 dark:hover:text-accent-600 transition-colors py-3 px-8 border border-zinc-200 dark:border-zinc-800 rounded-full bg-white/50 dark:bg-zinc-950/50 backdrop-blur-sm hover:border-accent-500/30 shadow-md"
             >
-              <span>View selected work</span>
+              <span>View my works</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
