@@ -7,6 +7,7 @@ export const Layout: React.FC = () => {
   const location = useLocation();
   const isPlayground = location.pathname === '/experiments';
   const [contactOpen, setContactOpen] = useState(false);
+  const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [isDark, setIsDark] = useState(true);
 
   // Toggle Theme
@@ -124,6 +125,25 @@ export const Layout: React.FC = () => {
                      action="https://formspree.io/f/xqedyrjl"
                      method="POST"
                      className="space-y-4"
+                     onSubmit={async (e) => {
+                       e.preventDefault();
+                       if (contactStatus === 'sending') return;
+                       setContactStatus('sending');
+                       try {
+                         const form = e.currentTarget;
+                         const formData = new FormData(form);
+                         const res = await fetch('https://formspree.io/f/xqedyrjl', {
+                           method: 'POST',
+                           body: formData,
+                           headers: { Accept: 'application/json' }
+                         });
+                         if (!res.ok) throw new Error('Request failed');
+                         setContactStatus('success');
+                         form.reset();
+                       } catch {
+                         setContactStatus('error');
+                       }
+                     }}
                    >
                      <input type="hidden" name="_subject" value="New message from portfolio contact form" />
                      <input
@@ -147,11 +167,22 @@ export const Layout: React.FC = () => {
                        placeholder="Message"
                        className="w-full p-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-sm text-sm text-zinc-700 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent-500/40 resize-none"
                      />
+                     {contactStatus === 'success' && (
+                       <div className="text-sm text-emerald-600 dark:text-emerald-400">
+                         Message sent. I’ll get back to you soon.
+                       </div>
+                     )}
+                     {contactStatus === 'error' && (
+                       <div className="text-sm text-rose-600 dark:text-rose-400">
+                         Something went wrong. Please try again.
+                       </div>
+                     )}
                      <button
                        type="submit"
-                       className="block w-full text-center text-sm bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 py-3 font-medium hover:bg-accent-500 dark:hover:bg-accent-500 hover:text-white dark:hover:text-white transition-colors rounded-sm"
+                       className="block w-full text-center text-sm bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 py-3 font-medium hover:bg-accent-500 dark:hover:bg-accent-500 hover:text-white dark:hover:text-white transition-colors rounded-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                       disabled={contactStatus === 'sending'}
                      >
-                       Send Message
+                       {contactStatus === 'sending' ? 'Sending...' : 'Send Message'}
                      </button>
                    </form>
                  </motion.div>
