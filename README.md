@@ -1,4 +1,4 @@
-# Ashok Timsina - Systems Portfolio
+# Ashok Timsina - Portfolio
 
 A high-end, minimalist portfolio showcasing applied AI and robotics engineering work. Built with React, TypeScript, and Framer Motion, featuring **interactive inverse kinematics** and a clean, systems-focused design.
 
