@@ -11,7 +11,7 @@ export const PROJECTS: Project[] = [
       'Re-engineered the model to operate in latent space, reaching 80% accuracy with only 1,500 videos.',
       'Delivered the end-to-end system in 36 hours for real-time CCTV risk forecasting.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    imageUrl: '/images/sentinel.avif',
     tech: ['PyTorch', 'CUDA', 'World Models', 'CCTV'],
     links: { github: 'https://github.com/timsinashok/Sentinel-AI' }
   },
@@ -25,7 +25,7 @@ export const PROJECTS: Project[] = [
       'Integrated a WhatsApp-based survey agent and orchestrated multi-turn conversations across text and voice.',
       'Extracted structured insights from responses to reduce time-to-insight from weeks to minutes.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    imageUrl: '/images/mesh.avif',
     tech: ['FastAPI', 'LLMs', 'WhatsApp', 'PostgreSQL'],
     links: { github: 'https://github.com/timsinashok' }
   },
@@ -33,12 +33,12 @@ export const PROJECTS: Project[] = [
     id: 'medbud',
     title: 'MedBud',
     category: 'Health Tech',
-    description: 'Symptom tracking and insights platform for a React Native app.',
+    description: 'Mobile app for interactive symptom tracking and insight generation.',
     longDescription: [
       'Built the backend with FastAPI and MongoDB for user symptom logs and analytics.',
       'Implemented Google OAuth with Firebase and deployed the service on Render.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1580281657521-7890f3188670?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    imageUrl: '/images/medbud.jpg',
     tech: ['FastAPI', 'MongoDB', 'React Native', 'Firebase'],
     links: { github: 'https://github.com/timsinashok/medBud' }
   },
@@ -46,12 +46,12 @@ export const PROJECTS: Project[] = [
     id: 'spexy',
     title: 'Spexy',
     category: 'Computer Vision',
-    description: 'Glasses recommendation system with face-shape detection.',
+    description: 'Glasses recommendation based on your face shape.',
     longDescription: [
       'Developed a full-stack app with React, FastAPI, and MongoDB.',
       'Integrated a YOLOv5-based face shape detector achieving 86% accuracy and deployed with Docker on GCP.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    imageUrl: '/images/spexy.avif',
     tech: ['React', 'FastAPI', 'MongoDB', 'YOLOv5'],
     links: { github: 'https://github.com/timsinashok/spexy' }
   },
@@ -64,7 +64,7 @@ export const PROJECTS: Project[] = [
       'Prototyped a full-stack platform with a Flask backend and Llama-3-8B integration.',
       'Built an auto-grader using a fine-tuned LLM that reached 95% accuracy on grade-level math.'
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1000&ixlib=rb-4.0.3',
+    imageUrl: '/images/assignmeant.avif',
     tech: ['Flask', 'Llama-3-8B', 'Python', 'LLMs'],
     links: { github: 'https://github.com/timsinashok/assignmeant-mvp' }
   }

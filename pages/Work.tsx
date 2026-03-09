@@ -55,7 +55,7 @@ export const Work: React.FC = () => {
         <div className="md:col-span-12 mt-9 pt-9 border-t border-zinc-200 dark:border-zinc-800">
            <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-4">Current Involvement</h3>
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
+              <a href="https://tracerobotis.tech" target="_blank" rel="noopener noreferrer" className="block bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
                 <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-3">
                   Trace Robotics <span className="text-zinc-500">• Founder</span>
@@ -63,7 +63,7 @@ export const Work: React.FC = () => {
                 <p className="text-base text-zinc-600 dark:text-zinc-300 font-light leading-relaxed">
                   Developing diagnostic and robustness evaluation tools for robot policies, stress-testing real-world deployment conditions.
                 </p>
-              </div>
+              </a>
 
               <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
