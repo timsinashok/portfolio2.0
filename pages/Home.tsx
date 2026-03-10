@@ -118,13 +118,13 @@ export const Home: React.FC = () => {
 
           {/* Social Links */}
           <div className="flex items-center gap-8 text-zinc-400 dark:text-zinc-500">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">
+            <a href="https://github.com/timsinashok" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors" aria-label="GitHub">
               <Github className="w-6 h-6" />
             </a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">
+            <a href="https://linkedin.com/in/ashok-timsina" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors" aria-label="LinkedIn">
               <Linkedin className="w-6 h-6" />
             </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors">
+            <a href="https://x.com/timsinashok" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors" aria-label="X">
               <Twitter className="w-6 h-6" />
             </a>
           </div>
