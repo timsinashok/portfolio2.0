@@ -83,10 +83,10 @@ export const Home: React.FC = () => {
         </motion.p>
         
         
-        {/* CTA reveals on interaction */}
+        {/* CTA – always visible */}
         <motion.div
            initial={{ opacity: 0, y: 10 }}
-           animate={{ opacity: hasInteracted ? 1 : 0, y: hasInteracted ? 0 : 10 }}
+           animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 0.6, delay: 0.2 }}
            className="pointer-events-auto flex flex-col items-center gap-8"
         >
@@ -115,25 +115,27 @@ export const Home: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Interaction Hint (Fades out) */}
-      <motion.div
-        animate={{ opacity: hasInteracted ? 0 : 0.6 }}
-        transition={{ duration: 1 }}
-        className="absolute bottom-32 text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-600 font-mono pointer-events-none z-20"
-      >
-        Move to guide the arm
-      </motion.div>
+      {/* Interaction Hint + Arm: desktop only */}
+      <div className="hidden md:block">
+        <motion.div
+          animate={{ opacity: hasInteracted ? 0 : 0.6 }}
+          transition={{ duration: 1 }}
+          className="absolute bottom-32 text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-600 font-mono pointer-events-none z-20"
+        >
+          Move to guide the arm
+        </motion.div>
 
-      {/* Robotic Arm Layer */}
-      <div className="absolute top-28 right-6 md:right-12 z-30 text-xs font-mono text-zinc-500 dark:text-zinc-500 pointer-events-none">
-        Goals: <span className="text-zinc-900 dark:text-zinc-100">{score.toString().padStart(2, '0')}</span>
+        {/* Robotic Arm Layer */}
+        <div className="absolute top-28 right-6 md:right-12 z-30 text-xs font-mono text-zinc-500 dark:text-zinc-500 pointer-events-none">
+          Goals: <span className="text-zinc-900 dark:text-zinc-100">{score.toString().padStart(2, '0')}</span>
+        </div>
+        <RoboticArmInteractive
+          isActive={hasInteracted}
+          target={target}
+          isDark={isDark}
+          onScoreUpdate={setScore}
+        />
       </div>
-      <RoboticArmInteractive
-        isActive={hasInteracted}
-        target={target}
-        isDark={isDark}
-        onScoreUpdate={setScore}
-      />
       
     </div>
   );

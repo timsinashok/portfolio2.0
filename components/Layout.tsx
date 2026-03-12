@@ -43,17 +43,40 @@ export const Layout: React.FC = () => {
 
       {!isPlayground && (
         <header className="fixed top-0 left-0 w-full z-50 px-6 py-6 md:px-12 md:py-10 flex justify-between items-center pointer-events-none">
-          <div className="pointer-events-auto flex items-center gap-8">
+          <div className="pointer-events-auto flex flex-col gap-2">
             <NavLink to="/" className="block group">
               <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 group-hover:text-accent-500 transition-colors">
                 Ashok Timsina
               </h1>
-              <span className="text-sm text-zinc-500 font-mono">Systems / Robotics</span>
+              <span className="text-sm text-zinc-500 font-mono">AI Systems / Robotics</span>
             </NavLink>
+            {/* Mobile nav */}
+            <nav className="flex md:hidden gap-4 pt-1">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition-colors ${
+                    isActive ? 'text-accent-500' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300'
+                  }`
+                }
+              >
+                Home
+              </NavLink>
+              <NavLink
+                to="/work"
+                className={({ isActive }) =>
+                  `text-sm font-medium transition-colors ${
+                    isActive ? 'text-accent-500' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300'
+                  }`
+                }
+              >
+                Work
+              </NavLink>
+            </nav>
           </div>
 
-          <div className="flex items-center gap-8 pointer-events-auto">
-            <nav className="flex gap-8">
+          <div className="flex items-center gap-4 md:gap-8 pointer-events-auto">
+            <nav className="hidden md:flex gap-8">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.path}
@@ -98,9 +121,9 @@ export const Layout: React.FC = () => {
       </main>
 
       {!isPlayground && (
-        <div className="fixed bottom-0 w-full p-6 md:p-12 flex justify-between items-end pointer-events-none z-50">
+        <div className="fixed bottom-0 w-full p-6 md:p-12 flex justify-end md:justify-between items-end pointer-events-none z-50">
           {/* Dynamic Counters */}
-          <div className="font-mono text-xs md:text-sm text-zinc-600 dark:text-zinc-500 space-y-1">
+          <div className="hidden md:block font-mono text-xs md:text-sm text-zinc-600 dark:text-zinc-500 space-y-1">
              <Counter label="humans" initialValue={1421} updateInterval={null} />
              <Counter label="agents" initialValue={37} updateInterval={5000} />
           </div>
