@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 import { PROJECTS } from '../lib/data';
 import { Project } from '../types';
 
@@ -28,41 +29,83 @@ export const Work: React.FC = () => {
         </div>
 
         {/* Columns: Building / Interests */}
-        <div className="md:col-span-5 space-y-4">
-           <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest">Currently Building</h3>
-           <ul className="space-y-2 text-zinc-700 dark:text-zinc-300 font-light text-base">
-             <li className="flex items-center gap-4">
-                <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse"></span>
-                Sample-efficient offline RL algorithms
-             </li>
-             <li>Simulation-based robot data</li>
-             <li>Vibe coder's keyboard</li>
-             <li>Trace Robotics: evaluation infrastructure for robot foundation models</li>
-           </ul>
-        </div>
+        <div className="md:col-span-12">
+          <div className="relative overflow-hidden rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-gradient-to-br from-white via-zinc-50 to-zinc-100 dark:from-zinc-950 dark:via-zinc-950/90 dark:to-zinc-900/80 px-6 py-6 md:px-8 md:py-7 shadow-sm">
+            <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),radial-gradient(circle_at_bottom,_#a855f7_0,_transparent_55%)]" />
+            <div className="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+              <div className="space-y-3">
+                <h3 className="text-xs md:text-sm font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.22em]">
+                  Currently Building
+                </h3>
+                <ul className="space-y-2.5 text-zinc-800 dark:text-zinc-200 font-light text-sm md:text-base">
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500 shadow-[0_0_0_4px_rgba(59,130,246,0.18)]" />
+                    <span>Sample-efficient offline RL algorithms</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500/80" />
+                    <span>Trace Robotics: evaluation infrastructure for robot foundation models</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500/80" />
+                    <span>Confyde AI: AI-powered saas for clinical trials</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500/80" />
+                    <span>Vibe coder&apos;s keyboard</span>
+                  </li>
+                </ul>
+              </div>
 
-        <div className="md:col-span-5 space-y-4">
-           <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest">Current Interests</h3>
-           <ul className="space-y-2 text-zinc-600 dark:text-zinc-400 font-light text-base">
-             <li>Planning using state-only data</li>
-             <li>Sim-to-real transfer</li>
-             <li>Evaluation frameworks for foundation robot policies</li>
-             <li>AI-driven infrastructure for real-world problem solving</li>
-           </ul>
+              <div className="space-y-3">
+                <h3 className="text-xs md:text-sm font-mono text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.22em]">
+                  Current Interests
+                </h3>
+                <ul className="space-y-2.5 text-zinc-700 dark:text-zinc-300 font-light text-sm md:text-base">
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500/80" />
+                    <span>Planning using state-only data</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500/80" />
+                    <span>Data-collection pipelines for robotics</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500/80" />
+                    <span>Evaluation frameworks for foundation robot policies</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-500/80" />
+                    <span>Applied AI solutions for real-world problem solving</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* New Section: Current Involvement */}
         <div className="md:col-span-12 mt-9 pt-9 border-t border-zinc-200 dark:border-zinc-800">
            <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-4">Current Involvement</h3>
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <a href="https://tracerobotis.tech" target="_blank" rel="noopener noreferrer" className="block bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
+           <div className="flex flex-col gap-6">
+              <a
+                href="https://tracerobotics.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm"
+              >
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
-                <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-3">
-                  Trace Robotics <span className="text-zinc-500">• Founder</span>
-                </h4>
-                <p className="text-base text-zinc-600 dark:text-zinc-300 font-light leading-relaxed">
-                  Developing diagnostic and robustness evaluation tools for robot policies, stress-testing real-world deployment conditions.
-                </p>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-3">
+                      Trace Robotics <span className="text-zinc-500">• Founder</span>
+                    </h4>
+                    <p className="text-base text-zinc-600 dark:text-zinc-300 font-light leading-relaxed">
+                      Developing diagnostic and robustness evaluation tools for robot policies, stress-testing real-world deployment conditions.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-zinc-400 dark:text-zinc-500 mt-1 group-hover:translate-x-1 group-hover:text-accent-500 transition-all" />
+                </div>
               </a>
 
               <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
@@ -75,15 +118,25 @@ export const Work: React.FC = () => {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm">
+              <a
+                href="https://confyde.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-8 rounded-md relative overflow-hidden group hover:border-accent-500/20 transition-colors shadow-sm"
+              >
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-500 opacity-80" />
-                <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-3">
-                  Confyde.ai <span className="text-zinc-500">• Founding Engineer, Backend & AI</span>
-                </h4>
-                <p className="text-base text-zinc-600 dark:text-zinc-300 font-light leading-relaxed">
-                  Building scalable AI backends and agent orchestration for pharma market research, from data pipelines to deployed services.
-                </p>
-              </div>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h4 className="text-lg md:text-xl text-zinc-900 dark:text-zinc-100 font-medium mb-3">
+                      Confyde.ai <span className="text-zinc-500">• Founding Engineer, Backend & AI</span>
+                    </h4>
+                    <p className="text-base text-zinc-600 dark:text-zinc-300 font-light leading-relaxed">
+                      Building scalable AI backends and agent orchestration for pharma market research, from data pipelines to deployed services.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-zinc-400 dark:text-zinc-500 mt-1 group-hover:translate-x-1 group-hover:text-accent-500 transition-all" />
+                </div>
+              </a>
            </div>
         </div>
       </motion.div>
