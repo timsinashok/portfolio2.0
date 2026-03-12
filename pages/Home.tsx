@@ -98,13 +98,6 @@ export const Home: React.FC = () => {
               <span>View my works</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link
-              to="/experiments"
-              className="group inline-flex items-center gap-3 text-base font-medium text-accent-600 dark:text-accent-500 hover:text-accent-700 dark:hover:text-accent-600 transition-colors py-3 px-8 border border-accent-500/30 dark:border-accent-500/40 rounded-full bg-white/40 dark:bg-zinc-950/40 backdrop-blur-sm hover:border-accent-500/60 shadow-md"
-            >
-              <span>Explore experiments</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
           </div>
 
           {/* Social Links */}
